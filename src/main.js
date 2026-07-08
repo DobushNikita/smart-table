@@ -5,7 +5,8 @@ import {data as sourceData} from "./data/dataset_1.js";
 
 import {initData} from "./data.js";
 import {processFormData} from "./lib/utils.js";
-
+import { initSorting } from "./components/sorting.js";
+import { initPagination } from "./components/pagination.js";
 import {initTable} from "./components/table.js";
 // @todo: подключение
 
@@ -26,7 +27,7 @@ function collectState() {
         ...state,
         rowsPerPage,
         page
-    }; 
+    };
 }
 
 /**
@@ -37,7 +38,8 @@ function render(action) {
     let state = collectState(); // состояние полей из таблицы
     let result = [...data]; // копируем для последующего изменения
     // @todo: использование
-result = applyPagination(result, state, action); 
+    result = applyPagination(result, state, action); 
+    result = applySorting(result, state, action);
 
     sampleTable.render(result)
 }
@@ -45,7 +47,7 @@ result = applyPagination(result, state, action);
 const sampleTable = initTable({
     tableTemplate: 'table',
     rowTemplate: 'row',
-    before: [],
+    before: ['header'],
     after: ['pagination']
 }, render);
 
@@ -60,7 +62,12 @@ const applyPagination = initPagination(
         label.textContent = page;
         return el;
     }
-); 
+);
+
+const applySorting = initSorting([        // Нам нужно передать сюда массив элементов, которые вызывают сортировку, чтобы изменять их визуальное представление
+    sampleTable.header.elements.sortByDate,
+    sampleTable.header.elements.sortByTotal
+]); 
 
 const appRoot = document.querySelector('#app');
 appRoot.appendChild(sampleTable.container);
